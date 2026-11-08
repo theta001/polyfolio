@@ -18,6 +18,8 @@ diesel::table! {
         provider_account_id -> Nullable<Text>,
         is_archived -> Bool,
         tracking_mode -> Text,
+        owner_entity -> Text,
+        tax_classification -> Text,
     }
 }
 
@@ -148,6 +150,7 @@ diesel::table! {
         provider_config -> Nullable<Text>,
         created_at -> Text,
         updated_at -> Text,
+        duration -> Double,
     }
 }
 
@@ -862,6 +865,38 @@ diesel::table! {
 
 diesel::joinable!(allocation_target_constraints -> allocation_targets (target_id));
 
+diesel::table! {
+    weight_systems (id) {
+        id -> Text,
+        name -> Text,
+        is_default -> Bool,
+        created_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    account_weights (id) {
+        id -> Text,
+        account_id -> Text,
+        weight_system_id -> Text,
+        weight_value -> Double,
+    }
+}
+
+diesel::table! {
+    asset_weights (id) {
+        id -> Text,
+        asset_id -> Text,
+        weight_system_id -> Text,
+        weight_value -> Double,
+    }
+}
+
+diesel::joinable!(account_weights -> accounts (account_id));
+diesel::joinable!(account_weights -> weight_systems (weight_system_id));
+diesel::joinable!(asset_weights -> assets (asset_id));
+diesel::joinable!(asset_weights -> weight_systems (weight_system_id));
+
 diesel::joinable!(accounts -> platforms (platform_id));
 diesel::joinable!(activities -> accounts (account_id));
 diesel::joinable!(activities -> assets (asset_id));
@@ -960,4 +995,7 @@ diesel::allow_tables_to_appear_in_same_query!(
     personal_access_tokens,
     mcp_audit_log,
     allocation_target_constraints,
+    weight_systems,
+    account_weights,
+    asset_weights,
 );
