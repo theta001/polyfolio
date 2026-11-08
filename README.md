@@ -3,7 +3,7 @@
     <img src="assets/brand/icon.png" alt="Logo" width="80" height="80">
   </a>
 
-  <h3 align="center">Wealthfolio</h3>
+  <h3 align="center">Polyfolio, a Wealthfolio fork</h3>
 
   <p align="center">
     The open-source, private portfolio tracker — investments, net worth, spending, and simulations.
