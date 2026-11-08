@@ -351,6 +351,18 @@ pub struct Account {
     pub is_archived: bool,
     /// Tracking mode for the account
     pub tracking_mode: TrackingMode,
+    #[serde(default = "default_owner_entity")]
+    pub owner_entity: String,
+    #[serde(default = "default_tax_classification")]
+    pub tax_classification: String,
+}
+
+fn default_owner_entity() -> String {
+    "Primary".to_string()
+}
+
+fn default_tax_classification() -> String {
+    "Standard Taxable".to_string()
 }
 
 impl Account {

@@ -335,6 +335,9 @@ pub struct Asset {
     #[serde(skip_deserializing)]
     pub exchange_name: Option<String>, // Friendly exchange name (derived from MIC)
 
+    #[serde(default)]
+    pub duration: f64,
+
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }
