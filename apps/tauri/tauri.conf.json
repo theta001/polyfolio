@@ -3,7 +3,7 @@
     "beforeDevCommand": "node ./apps/tauri/scripts/sync-ios-composer-icon.mjs && pnpm --filter frontend dev:tauri",
     "beforeBuildCommand": "node ./apps/tauri/scripts/sync-ios-composer-icon.mjs && pnpm --filter frontend build:tauri",
     "frontendDist": "../../dist",
-    "devUrl": "http://localhost:1420"
+    "devUrl": "http://localhost:5173"
   },
   "bundle": {
     "active": true,

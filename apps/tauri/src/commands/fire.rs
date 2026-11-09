@@ -79,6 +79,7 @@ async fn build_valuation_map(
             &base_currency,
             latest_snapshot_cutoff,
             true,
+            None,
         )
         .await
         .map_err(|e| e.to_string())?;

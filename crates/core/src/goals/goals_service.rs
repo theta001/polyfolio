@@ -1127,7 +1127,7 @@ impl<T: GoalRepositoryTrait + Send + Sync> GoalServiceTrait for GoalService<T> {
             services.fx.as_ref(),
         );
         let response = service
-            .get_current_valuation_for_scope("all", &ids, &currency, self.today(), true)
+            .get_current_valuation_for_scope("all", &ids, &currency, self.today(), true, None)
             .await?;
         response
             .accounts

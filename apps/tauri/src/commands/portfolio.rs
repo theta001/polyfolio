@@ -584,6 +584,7 @@ pub async fn get_current_valuation(
             &base_currency,
             latest_snapshot_cutoff,
             include_accounts.unwrap_or(false),
+            None,
         )
         .await
         .map_err(|e| e.to_string())

@@ -67,6 +67,7 @@ pub struct AssetDB {
     pub provider_config: Option<String>,
     pub created_at: String,
     pub updated_at: String,
+    pub duration: f64,
 }
 
 /// Database write model for assets (excludes generated columns).
@@ -130,8 +131,43 @@ impl From<AssetDB> for Asset {
             instrument_key: db.instrument_key,
             provider_config,
             exchange_name: None, // Computed by Asset::enrich()
+            duration: db.duration,
             created_at: text_to_datetime(&db.created_at),
             updated_at: text_to_datetime(&db.updated_at),
+        }
+    }
+}
+
+// Conversion: domain Asset → DB read model
+impl From<Asset> for AssetDB {
+    fn from(model: Asset) -> Self {
+        Self {
+            id: model.id,
+            kind: model.kind.as_db_str().to_string(),
+            name: model.name,
+            display_code: model.display_code,
+            notes: model.notes,
+            metadata: model
+                .metadata
+                .as_ref()
+                .and_then(|v| serde_json::to_string(v).ok()),
+            is_active: if model.is_active { 1 } else { 0 },
+            quote_mode: model.quote_mode.as_db_str().to_string(),
+            quote_ccy: model.quote_ccy,
+            instrument_type: model
+                .instrument_type
+                .as_ref()
+                .map(|t| t.as_db_str().to_string()),
+            instrument_symbol: model.instrument_symbol,
+            instrument_exchange_mic: model.instrument_exchange_mic,
+            instrument_key: model.instrument_key,
+            provider_config: model
+                .provider_config
+                .as_ref()
+                .and_then(|v| serde_json::to_string(v).ok()),
+            created_at: model.created_at.to_string(),
+            updated_at: model.updated_at.to_string(),
+            duration: model.duration,
         }
     }
 }

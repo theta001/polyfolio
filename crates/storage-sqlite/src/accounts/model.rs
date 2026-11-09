@@ -48,6 +48,8 @@ pub struct AccountDB {
     pub provider_account_id: Option<String>,
     pub is_archived: bool,
     pub tracking_mode: String,
+    pub owner_entity: String,
+    pub tax_classification: String,
 }
 
 // Conversion implementations
@@ -83,6 +85,39 @@ impl From<AccountDB> for Account {
             provider_account_id: db.provider_account_id,
             is_archived: db.is_archived,
             tracking_mode,
+            owner_entity: db.owner_entity,
+            tax_classification: db.tax_classification,
+        }
+    }
+}
+
+impl From<Account> for AccountDB {
+    fn from(model: Account) -> Self {
+        let tracking_mode = match model.tracking_mode {
+            TrackingMode::Transactions => "TRANSACTIONS",
+            TrackingMode::Holdings => "HOLDINGS",
+            TrackingMode::NotSet => "NOT_SET",
+        }
+        .to_string();
+        Self {
+            id: model.id,
+            name: model.name,
+            account_type: model.account_type,
+            group: model.group,
+            currency: model.currency,
+            is_default: model.is_default,
+            is_active: model.is_active,
+            created_at: model.created_at,
+            updated_at: model.updated_at,
+            platform_id: model.platform_id,
+            account_number: model.account_number,
+            meta: model.meta,
+            provider: model.provider,
+            provider_account_id: model.provider_account_id,
+            is_archived: model.is_archived,
+            tracking_mode,
+            owner_entity: model.owner_entity,
+            tax_classification: model.tax_classification,
         }
     }
 }
@@ -113,6 +148,8 @@ impl From<NewAccount> for AccountDB {
             provider_account_id: domain.provider_account_id,
             is_archived: domain.is_archived,
             tracking_mode,
+            owner_entity: "Primary".to_string(),
+            tax_classification: "Standard Taxable".to_string(),
         }
     }
 }
@@ -145,6 +182,8 @@ impl From<AccountUpdate> for AccountDB {
             provider_account_id: domain.provider_account_id,
             is_archived: domain.is_archived.unwrap_or(false),
             tracking_mode,
+            owner_entity: "Primary".to_string(),
+            tax_classification: "Standard Taxable".to_string(),
         }
     }
 }

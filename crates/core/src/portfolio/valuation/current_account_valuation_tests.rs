@@ -223,6 +223,7 @@ fn current_account_valuation_uses_latest_snapshot_positions_without_mutating_dai
         calculated_at,
         true,
         latest_rate,
+        None,
     );
     let current = &response.accounts;
 
@@ -281,6 +282,7 @@ fn current_account_valuation_includes_security_and_cash_excludes_asset_kind_alte
         calculated_at,
         true,
         latest_rate,
+        None,
     );
     let current = &response.accounts;
 
@@ -336,6 +338,7 @@ fn current_valuation_response_excludes_expired_options() {
         calculated_at,
         true,
         latest_rate,
+        None,
     );
 
     assert_eq!(response.summary.holdings_count, 2);
@@ -372,6 +375,7 @@ fn current_valuation_response_normalizes_minor_currency_splits() {
         calculated_at,
         true,
         latest_rate,
+        None,
     );
 
     assert_eq!(response.summary.investment_market_value_base, dec!(12.5));
@@ -417,6 +421,7 @@ fn current_account_valuation_returns_zero_for_no_snapshot() {
         calculated_at,
         true,
         latest_rate,
+        None,
     );
     let current = &response.accounts;
 
@@ -454,6 +459,7 @@ fn current_valuation_warns_and_excludes_unpriced_positions_from_holding_count() 
         calculated_at,
         true,
         latest_rate,
+        None,
     );
 
     assert_eq!(response.summary.holdings_count, 0);
@@ -510,6 +516,7 @@ fn current_valuation_surfaces_fx_fallback_warnings() {
                 }
             }
         },
+        None,
     );
 
     assert_eq!(response.summary.total_value_base, dec!(100));
@@ -566,6 +573,7 @@ fn current_valuation_keeps_account_currency_fx_warnings_off_summary() {
                 }
             }
         },
+        None,
     );
 
     assert_eq!(response.summary.total_value_base, dec!(100));
@@ -686,6 +694,7 @@ fn current_valuation_response_summarizes_scope_and_optionally_returns_accounts()
         calculated_at,
         true,
         latest_rate,
+        None,
     );
 
     assert_eq!(response.summary.scope_id, "accounts:test");
@@ -727,6 +736,7 @@ fn current_valuation_response_summarizes_scope_and_optionally_returns_accounts()
         calculated_at,
         false,
         latest_rate,
+        None,
     );
     assert!(summary_only.accounts.is_empty());
     assert_eq!(summary_only.summary.total_value_base, dec!(213));

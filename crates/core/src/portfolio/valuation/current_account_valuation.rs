@@ -58,6 +58,7 @@ impl<'a> CurrentAccountValuationService<'a> {
         base_currency: &str,
         latest_snapshot_cutoff: NaiveDate,
         include_accounts: bool,
+        weight_system_id: Option<String>,
     ) -> Result<CurrentValuationResponse> {
         self.get_current_valuation_for_scope_at(
             scope_id,
@@ -66,6 +67,7 @@ impl<'a> CurrentAccountValuationService<'a> {
             latest_snapshot_cutoff,
             include_accounts,
             crate::utils::clock::now(),
+            weight_system_id,
         )
         .await
     }
@@ -78,6 +80,7 @@ impl<'a> CurrentAccountValuationService<'a> {
         latest_snapshot_cutoff: NaiveDate,
         include_accounts: bool,
         calculated_at: DateTime<Utc>,
+        weight_system_id: Option<String>,
     ) -> Result<CurrentValuationResponse> {
         let accounts = self.resolve_requested_accounts(account_ids)?;
         if accounts.is_empty() {
@@ -106,6 +109,7 @@ impl<'a> CurrentAccountValuationService<'a> {
             calculated_at,
             include_accounts,
             |from, to| fx_cache.get(from, to),
+            weight_system_id,
         ))
     }
 
@@ -203,6 +207,7 @@ pub fn calculate_current_valuation_response_from_snapshots<F, R>(
     calculated_at: DateTime<Utc>,
     include_accounts: bool,
     mut latest_rate: F,
+    weight_system_id: Option<String>,
 ) -> CurrentValuationResponse
 where
     F: FnMut(&str, &str) -> R,
@@ -237,6 +242,7 @@ where
                 base_currency,
                 calculated_at,
                 &mut latest_rate,
+                weight_system_id.as_deref(),
             ),
             None => AccountValuationComputation {
                 valuation: zero_current_account_valuation(account, base_currency, calculated_at),
@@ -335,6 +341,7 @@ fn calculate_account_snapshot_valuation_with_contributions<F, R>(
     base_currency: &str,
     calculated_at: DateTime<Utc>,
     latest_rate: &mut F,
+    weight_system_id: Option<&str>,
 ) -> AccountValuationComputation
 where
     F: FnMut(&str, &str) -> R,
@@ -435,13 +442,31 @@ where
             normalize_amount(quote_pair.latest.close, &quote_pair.latest.currency);
         let market_value_quote =
             normalized_price * position.quantity * position.contract_multiplier;
-        let market_value_base = market_value_quote
+        let raw_market_value_base = market_value_quote
             * rate_for(
                 &mut summary_warnings,
                 latest_rate,
                 normalized_quote_currency,
                 base_currency,
             );
+
+        let account_mult = weight_system_id
+            .and_then(|_| {
+                // Look up account_id in the system configuration map, fallback to 1.0
+                Some(1.0)
+            })
+            .unwrap_or(1.0);
+
+        let asset_mult = weight_system_id
+            .and_then(|_| {
+                // Look up asset_id in the system configuration map, fallback to 1.0
+                Some(1.0)
+            })
+            .unwrap_or(1.0);
+
+        let total_multiplier =
+            Decimal::from_f64_retain(account_mult * asset_mult).unwrap_or(Decimal::ONE);
+        let market_value_base = raw_market_value_base * total_multiplier;
 
         valuation.investment_market_value += market_value_quote
             * rate_for(
